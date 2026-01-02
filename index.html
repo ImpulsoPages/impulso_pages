@@ -69,7 +69,6 @@
             border-radius: 50%;
             z-index: 9999;
             pointer-events: none;
-            /* Añadimos transición para que la respuesta al hover sea suave */
             transition: transform 0.1s; 
         }
         .cursor-dot { width: 8px; height: 8px; background: black; }
@@ -81,7 +80,6 @@
             width: 70px; height: 70px;
             background-color: #CCFF00;
             border-color: transparent;
-            /* Se eliminó mix-blend-mode: difference; para mayor estabilidad visual */
         }
 
         /* Preloader */
@@ -331,37 +329,19 @@
         </div>
     </section>
 
-    <!-- Contact Section -->
-    <section id="contacto" class="py-24 px-6 bg-brand-green border-t-2 border-black">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
-            <div class="md:w-1/2">
-                <h2 class="text-6xl md:text-8xl font-bold uppercase leading-[0.9] mb-8 text-black">
-                    ¿Hablamos<br>de <span class="text-white text-outline-black">Negocios?</span>
-                </h2>
-                <p class="text-xl font-bold mb-12">Agenda una llamada de descubrimiento de 15 minutos.</p>
-                
-                <a href="mailto:hola@impulsopages.com" class="text-2xl md:text-4xl font-bold underline decoration-4 hover:no-underline hover:bg-black hover:text-white px-2 transition-all inline-block hover-target">
-                    hola@impulsopages.com
+    <!-- Contact Section Simplificada -->
+    <section id="contacto" class="py-32 px-6 bg-brand-green border-t-2 border-black min-h-[60vh] flex items-center">
+        <div class="max-w-7xl mx-auto w-full text-center">
+            <h2 class="text-6xl md:text-[10vw] font-bold uppercase leading-[0.8] mb-12 text-black">
+                ¿Hablamos<br>de <span class="text-white text-outline-black">Negocios?</span>
+            </h2>
+            
+            <div class="flex flex-col items-center gap-8">
+                <p class="text-xl md:text-2xl font-bold uppercase tracking-widest">Síguenos y hablemos por DM</p>
+                <a href="https://www.instagram.com/impulso.pages" target="_blank" class="bg-black text-white px-12 py-8 text-2xl md:text-4xl font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 hover-target flex items-center gap-6 group border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[5px] hover:translate-y-[5px]">
+                    @impulso.pages
+                    <i data-lucide="instagram" class="w-10 h-10 group-hover:scale-125 transition-transform duration-300"></i>
                 </a>
-            </div>
-
-            <div class="md:w-1/2 bg-white border-2 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-                <form class="space-y-6">
-                    <div>
-                        <input type="text" placeholder="NOMBRE" class="w-full bg-transparent border-b-2 border-black py-4 text-xl font-bold focus:outline-none focus:border-brand-green placeholder-gray-400 hover-target uppercase">
-                    </div>
-                    <div>
-                        <input type="email" placeholder="EMAIL" class="w-full bg-transparent border-b-2 border-black py-4 text-xl font-bold focus:outline-none focus:border-brand-green placeholder-gray-400 hover-target uppercase">
-                    </div>
-                    <div>
-                        <textarea rows="3" placeholder="TU IDEA..." class="w-full bg-transparent border-b-2 border-black py-4 text-xl font-bold focus:outline-none focus:border-brand-green placeholder-gray-400 hover-target uppercase"></textarea>
-                    </div>
-                    <!-- Se usa type="button" y se evita alert() según las directrices -->
-                    <button type="button" onclick="console.log('Mensaje Enviado')" class="w-full bg-black text-white font-bold text-2xl uppercase py-6 hover:bg-brand-green hover:text-black transition-colors border-2 border-black hover-target mt-4 flex justify-between px-8 group">
-                        <span>Enviar</span>
-                        <span class="group-hover:translate-x-2 transition-transform">→</span>
-                    </button>
-                </form>
             </div>
         </div>
     </section>
@@ -369,10 +349,10 @@
     <footer class="bg-black text-white py-12 px-6 text-center md:text-left border-t border-gray-800">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
             <div class="mb-8 md:mb-0">
-                <h2 class="text-2xl font-bold">IMPULSO PAGES © 2024</h2>
+                <h2 class="text-2xl font-bold tracking-tighter">IMPULSO PAGES<span class="text-brand-green">.</span> © 2024</h2>
             </div>
             <div class="flex gap-8 text-sm font-bold uppercase text-gray-400">
-                <a href="#" class="hover:text-brand-green transition-colors hover-target">Instagram</a>
+                <a href="https://www.instagram.com/impulso.pages" target="_blank" class="hover:text-brand-green transition-colors hover-target">Instagram</a>
                 <a href="#" class="hover:text-brand-green transition-colors hover-target">LinkedIn</a>
                 <a href="#" class="hover:text-brand-green transition-colors hover-target">Twitter</a>
             </div>
@@ -386,7 +366,6 @@
         // --- PRELOADER ANIMATION ---
         const preloaderTl = gsap.timeline();
 
-        // 1. Reveal Text
         preloaderTl.to(".preloader-text", {
             y: 0,
             duration: 0.8,
@@ -394,20 +373,17 @@
             ease: "power4.out",
             delay: 0.2
         })
-        // 2. Pause briefly
         .to(".preloader-text", {
             y: -150,
             duration: 0.6,
             ease: "power4.in",
             delay: 0.8
         })
-        // 3. Slide Up Curtain
         .to("#preloader", {
             yPercent: -100,
             duration: 0.8,
             ease: "power4.inOut"
         }, "-=0.2")
-        // 4. Start Hero Animations
         .from(".hero-reveal", {
             y: 120,
             opacity: 0,
@@ -417,7 +393,7 @@
         }, "-=0.4");
 
 
-        // --- MARQUEE ANIMATION (Scroll aware) ---
+        // --- MARQUEE ANIMATION ---
         gsap.to(".marquee-track", {
             xPercent: -50,
             repeat: -1,
@@ -425,7 +401,6 @@
             ease: "linear"
         }).timeScale(1);
 
-        // Accelerate marquee on scroll
         let marqueeTween = gsap.getTweensOf(".marquee-track")[0];
         ScrollTrigger.create({
             trigger: "body",
@@ -434,12 +409,12 @@
             onUpdate: (self) => {
                 let speed = 1 + Math.abs(self.getVelocity() / 3000);
                 gsap.to(marqueeTween, {timeScale: speed, duration: 0.2, overwrite: true});
-                gsap.to(marqueeTween, {timeScale: 1, duration: 1, delay: 0.2}); // Return to normal
+                gsap.to(marqueeTween, {timeScale: 1, duration: 1, delay: 0.2});
             }
         });
 
 
-        // --- SERVICE ITEMS HOVER & REVEAL ---
+        // --- SERVICE ITEMS REVEAL ---
         const services = document.querySelectorAll('.service-item');
         services.forEach(service => {
             gsap.from(service, {
@@ -469,23 +444,20 @@
         });
 
 
-        // --- CURSOR LOGIC (INSTANT FOLLOW) ---
+        // --- CURSOR LOGIC ---
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
         
-        // El cursor sigue la posición del ratón de forma instantánea.
         window.addEventListener('mousemove', (e) => {
             const clientX = e.clientX;
             const clientY = e.clientY;
             
-            // Tanto el punto como el contorno siguen al ratón inmediatamente.
             cursorDot.style.left = clientX + 'px';
             cursorDot.style.top = clientY + 'px';
             cursorOutline.style.left = clientX + 'px';
             cursorOutline.style.top = clientY + 'px';
         });
 
-        // Hover states: controlan el cambio de tamaño/color al pasar sobre elementos interactivos.
         document.querySelectorAll('.hover-target').forEach(el => {
             el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovered'));
             el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovered'));
@@ -501,10 +473,9 @@
             isMenuOpen = !isMenuOpen;
             if (isMenuOpen) {
                 mobileMenu.classList.add('open');
-                menuBtn.classList.add('text-white'); // Ensure button is visible on black
+                menuBtn.classList.add('text-white');
                 document.body.style.overflow = 'hidden';
                 
-                // Animate links in
                 gsap.fromTo(".menu-link", 
                     { y: 50, opacity: 0 },
                     { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, delay: 0.3 }
