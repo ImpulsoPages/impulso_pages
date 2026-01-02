@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMPULSO PAGES | Agencia Digital</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP & Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-black': '#050505',
+                        'brand-green': '#CCFF00',
+                        'brand-gray': '#F0F0F0'
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'noise': "url('https://grainy-gradients.vercel.app/noise.svg')"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            cursor: none;
+            overflow-x: hidden;
+            background-color: #F0F0F0;
+        }
+
+        /* Ruido de fondo sutil para textura */
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9000;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Cursor */
+        .cursor-dot, .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            /* Añadimos transición para que la respuesta al hover sea suave */
+            transition: transform 0.1s; 
+        }
+        .cursor-dot { width: 8px; height: 8px; background: black; }
+        .cursor-outline {
+            width: 40px; height: 40px; border: 1px solid black;
+            transition: width 0.2s, height 0.2s, background-color 0.2s, transform 0.1s;
+        }
+        body:hover .cursor-outline.hovered {
+            width: 70px; height: 70px;
+            background-color: #CCFF00;
+            border-color: transparent;
+            /* Se eliminó mix-blend-mode: difference; para mayor estabilidad visual */
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #CCFF00;
+        }
+        .preloader-curtain {
+            position: absolute;
+            top: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10001;
+        }
+
+        /* Texto Outline */
+        .text-outline {
+            -webkit-text-stroke: 1px black;
+            color: transparent;
+            transition: all 0.5s ease;
+        }
+        .text-outline:hover {
+            -webkit-text-stroke: 0px;
+            color: #CCFF00;
+            background: black;
+        }
+
+        /* Scrollbar Hide */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #000; }
+        ::-webkit-scrollbar-thumb:hover { background: #CCFF00; }
+
+        /* Mobile Menu Overlay */
+        #mobile-menu {
+            transform: translateY(-100%);
+            transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        #mobile-menu.open {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="text-brand-black selection:bg-brand-green selection:text-black">
+
+    <div class="bg-noise"></div>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="text-6xl md:text-9xl font-bold tracking-tighter flex overflow-hidden">
+            <span class="preloader-text translate-y-full">IMPULSO</span>
+            <span class="preloader-text translate-y-full text-brand-green">.</span>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black z-40 flex flex-col justify-center items-center text-white">
+        <nav class="flex flex-col gap-8 text-center text-4xl font-bold uppercase tracking-tighter">
+            <a href="#servicios" class="menu-link hover:text-brand-green transition-colors" onclick="toggleMenu()">Servicios</a>
+            <a href="#proceso" class="menu-link hover:text-brand-green transition-colors" onclick="toggleMenu()">Método</a>
+            <a href="#contacto" class="menu-link hover:text-brand-green transition-colors" onclick="toggleMenu()">Contacto</a>
+        </nav>
+        <div class="absolute bottom-10 text-sm text-gray-500 uppercase tracking-widest">Impulso Pages v2.0</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-exclusion text-white">
+        <a href="#" class="text-2xl font-bold tracking-tighter hover-target relative z-50">IMPULSO<span class="text-brand-green">.</span></a>
+        
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex gap-8 text-sm font-bold tracking-widest uppercase items-center">
+            <a href="#servicios" class="hover:text-brand-green transition-colors hover-target relative group">
+                Servicios
+                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-green transition-all group-hover:w-full"></span>
+            </a>
+            <a href="#proceso" class="hover:text-brand-green transition-colors hover-target relative group">
+                Método
+                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-green transition-all group-hover:w-full"></span>
+            </a>
+            <a href="#contacto" class="border border-white px-6 py-2 hover:bg-brand-green hover:text-black hover:border-brand-green transition-all duration-300 hover-target">
+                Contacto
+            </a>
+        </div>
+
+        <!-- Mobile Toggle -->
+        <button id="menu-btn" class="md:hidden hover-target z-50 relative group" onclick="toggleMenu()">
+            <div class="space-y-2">
+                <span class="block w-8 h-0.5 bg-white transition-transform duration-300 group-hover:bg-brand-green"></span>
+                <span class="block w-8 h-0.5 bg-white transition-transform duration-300 group-hover:bg-brand-green"></span>
+            </div>
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex flex-col justify-center px-6 pt-20 border-b-2 border-black bg-white">
+        <div class="max-w-[90rem] mx-auto w-full relative z-10">
+            <div class="overflow-hidden mb-2">
+                <p class="hero-reveal text-sm md:text-base uppercase tracking-[0.3em] font-bold">Agencia Digital & Creativa</p>
+            </div>
+            
+            <h1 class="text-[14vw] md:text-[11vw] font-bold leading-[0.8] tracking-tighter mb-8 uppercase">
+                <div class="overflow-hidden"><span class="hero-reveal block">Creamos</span></div>
+                <div class="overflow-hidden"><span class="hero-reveal block ml-[10vw] italic text-brand-green bg-black px-4 transform -skew-x-12 inline-block">Impulso</span></div>
+                <div class="overflow-hidden"><span class="hero-reveal block text-outline">Digital.</span></div>
+            </h1>
+            
+            <div class="flex flex-col md:flex-row items-start md:items-end justify-between mt-12 gap-8 border-t-2 border-black pt-8">
+                <div class="max-w-md overflow-hidden">
+                    <p class="hero-reveal text-xl leading-relaxed font-medium transform translate-y-full">
+                        Transformamos ideas en experiencias web <span class="border-b-4 border-brand-green">brutales</span>. Diseño estratégico para marcas que quieren dominar.
+                    </p>
+                </div>
+                
+                <div class="overflow-hidden">
+                    <a href="#contacto" class="hero-reveal block transform translate-y-full">
+                        <button class="bg-black text-white px-10 py-6 text-xl font-bold uppercase tracking-wider hover:bg-brand-green hover:text-black transition-all duration-300 hover-target flex items-center gap-4 group">
+                            Iniciar Ahora
+                            <i data-lucide="arrow-up-right" class="group-hover:rotate-45 transition-transform duration-300"></i>
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Background Element -->
+        <div class="absolute top-1/2 right-0 -translate-y-1/2 w-1/3 h-full opacity-10 pointer-events-none hidden lg:block overflow-hidden">
+            <div class="text-[20rem] font-bold leading-none rotate-90 origin-center text-black" id="bg-text">
+                IMPULSO
+            </div>
+        </div>
+    </header>
+
+    <!-- Marquee Infinito -->
+    <div class="bg-brand-green text-black py-6 border-b-2 border-black overflow-hidden relative z-20">
+        <div class="marquee-track flex gap-12 text-5xl md:text-7xl font-bold uppercase tracking-tighter whitespace-nowrap">
+            <span>Diseño Web</span> <span class="text-white text-outline-black">★</span> 
+            <span>Estrategia</span> <span class="text-white text-outline-black">★</span> 
+            <span>Branding</span> <span class="text-white text-outline-black">★</span> 
+            <span>Development</span> <span class="text-white text-outline-black">★</span> 
+            <span>Diseño Web</span> <span class="text-white text-outline-black">★</span> 
+            <span>Estrategia</span> <span class="text-white text-outline-black">★</span> 
+            <span>Branding</span> <span class="text-white text-outline-black">★</span> 
+            <span>Development</span> <span class="text-white text-outline-black">★</span> 
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <section id="servicios" class="bg-white text-black relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+            <!-- Header Sticky -->
+            <div class="lg:sticky lg:top-0 lg:h-screen p-8 md:p-16 border-b-2 lg:border-b-0 lg:border-r-2 border-black flex flex-col justify-between bg-white">
+                <div>
+                    <h2 class="text-7xl md:text-9xl font-bold tracking-tighter leading-none mb-8">SER<br>VICI<br>OS.</h2>
+                    <p class="text-xl max-w-sm font-medium mt-8">
+                        Todo lo que necesitas para escalar. Nada de relleno.
+                    </p>
+                </div>
+                <div class="hidden lg:block">
+                    <i data-lucide="arrow-down-circle" class="w-24 h-24 stroke-1 animate-bounce"></i>
+                </div>
+            </div>
+
+            <!-- Services List -->
+            <div class="bg-brand-gray">
+                <div class="service-item border-b-2 border-black p-12 hover:bg-black hover:text-white transition-all duration-500 group hover-target cursor-none relative overflow-hidden">
+                    <div class="absolute inset-0 bg-brand-green transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left z-0 mix-blend-multiply opacity-0 group-hover:opacity-100"></div>
+                    <div class="relative z-10">
+                        <span class="text-6xl font-bold mb-6 block opacity-30 group-hover:opacity-100 group-hover:text-brand-green transition-all">01</span>
+                        <h3 class="text-4xl font-bold mb-4 uppercase">Web Development</h3>
+                        <p class="text-lg opacity-70 group-hover:opacity-100 max-w-md">
+                            Código limpio. Animaciones fluidas. Velocidad extrema. Creamos webs que Google ama y tus clientes disfrutan.
+                        </p>
+                        <div class="mt-8 flex gap-2 flex-wrap">
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">React</span>
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Webflow</span>
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Shopify</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item border-b-2 border-black p-12 hover:bg-black hover:text-white transition-all duration-500 group hover-target relative">
+                    <div class="relative z-10">
+                        <span class="text-6xl font-bold mb-6 block opacity-30 group-hover:opacity-100 group-hover:text-brand-green transition-all">02</span>
+                        <h3 class="text-4xl font-bold mb-4 uppercase">Growth Marketing</h3>
+                        <p class="text-lg opacity-70 group-hover:opacity-100 max-w-md">
+                            No vendemos humo. Vendemos ROAS. Campañas de pago y estrategias orgánicas que traen clientes reales.
+                        </p>
+                        <div class="mt-8 flex gap-2 flex-wrap">
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Google Ads</span>
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Meta Ads</span>
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">SEO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-item border-b-2 border-black p-12 hover:bg-black hover:text-white transition-all duration-500 group hover-target relative">
+                    <div class="relative z-10">
+                        <span class="text-6xl font-bold mb-6 block opacity-30 group-hover:opacity-100 group-hover:text-brand-green transition-all">03</span>
+                        <h3 class="text-4xl font-bold mb-4 uppercase">Branding Killer</h3>
+                        <p class="text-lg opacity-70 group-hover:opacity-100 max-w-md">
+                            Identidades visuales que no piden permiso. Logos, tipografías y direcciones de arte que destacan en el caos.
+                        </p>
+                        <div class="mt-8 flex gap-2 flex-wrap">
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Identidad</span>
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Logo</span>
+                            <span class="border border-current px-3 py-1 text-xs uppercase rounded-full">Naming</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section with Horizontal Scroll Feel -->
+    <section id="proceso" class="bg-black text-white py-32 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto mb-20 text-center">
+            <h2 class="text-5xl md:text-8xl font-bold uppercase">Nuestro <span class="text-brand-green">ADN</span></h2>
+        </div>
+        
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="process-card bg-[#111] p-8 border border-[#333] hover:border-brand-green transition-colors duration-500 group">
+                <div class="w-16 h-16 bg-brand-green text-black flex items-center justify-center text-3xl font-bold mb-8 rounded-full group-hover:scale-110 transition-transform">1</div>
+                <h3 class="text-2xl font-bold mb-4">Análisis</h3>
+                <p class="text-gray-400">Desnudamos tu modelo de negocio. Entendemos qué duele y qué funciona antes de escribir una línea de código.</p>
+            </div>
+            
+            <div class="process-card bg-[#111] p-8 border border-[#333] hover:border-brand-green transition-colors duration-500 group mt-0 md:mt-12">
+                <div class="w-16 h-16 bg-white text-black flex items-center justify-center text-3xl font-bold mb-8 rounded-full group-hover:scale-110 transition-transform">2</div>
+                <h3 class="text-2xl font-bold mb-4">Ejecución</h3>
+                <p class="text-gray-400">Diseño iterativo y desarrollo ágil. Construimos rápido, rompemos cosas y arreglamos más rápido.</p>
+            </div>
+
+            <div class="process-card bg-[#111] p-8 border border-[#333] hover:border-brand-green transition-colors duration-500 group mt-0 md:mt-24">
+                <div class="w-16 h-16 bg-transparent border-2 border-brand-green text-brand-green flex items-center justify-center text-3xl font-bold mb-8 rounded-full group-hover:bg-brand-green group-hover:text-black transition-all">3</div>
+                <h3 class="text-2xl font-bold mb-4">Dominio</h3>
+                <p class="text-gray-400">Lanzamiento, medición y optimización. No soltamos tu mano hasta que los números estén en verde.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contacto" class="py-24 px-6 bg-brand-green border-t-2 border-black">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
+            <div class="md:w-1/2">
+                <h2 class="text-6xl md:text-8xl font-bold uppercase leading-[0.9] mb-8 text-black">
+                    ¿Hablamos<br>de <span class="text-white text-outline-black">Negocios?</span>
+                </h2>
+                <p class="text-xl font-bold mb-12">Agenda una llamada de descubrimiento de 15 minutos.</p>
+                
+                <a href="mailto:hola@impulsopages.com" class="text-2xl md:text-4xl font-bold underline decoration-4 hover:no-underline hover:bg-black hover:text-white px-2 transition-all inline-block hover-target">
+                    hola@impulsopages.com
+                </a>
+            </div>
+
+            <div class="md:w-1/2 bg-white border-2 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+                <form class="space-y-6">
+                    <div>
+                        <input type="text" placeholder="NOMBRE" class="w-full bg-transparent border-b-2 border-black py-4 text-xl font-bold focus:outline-none focus:border-brand-green placeholder-gray-400 hover-target uppercase">
+                    </div>
+                    <div>
+                        <input type="email" placeholder="EMAIL" class="w-full bg-transparent border-b-2 border-black py-4 text-xl font-bold focus:outline-none focus:border-brand-green placeholder-gray-400 hover-target uppercase">
+                    </div>
+                    <div>
+                        <textarea rows="3" placeholder="TU IDEA..." class="w-full bg-transparent border-b-2 border-black py-4 text-xl font-bold focus:outline-none focus:border-brand-green placeholder-gray-400 hover-target uppercase"></textarea>
+                    </div>
+                    <!-- Se usa type="button" y se evita alert() según las directrices -->
+                    <button type="button" onclick="console.log('Mensaje Enviado')" class="w-full bg-black text-white font-bold text-2xl uppercase py-6 hover:bg-brand-green hover:text-black transition-colors border-2 border-black hover-target mt-4 flex justify-between px-8 group">
+                        <span>Enviar</span>
+                        <span class="group-hover:translate-x-2 transition-transform">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-white py-12 px-6 text-center md:text-left border-t border-gray-800">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-8 md:mb-0">
+                <h2 class="text-2xl font-bold">IMPULSO PAGES © 2024</h2>
+            </div>
+            <div class="flex gap-8 text-sm font-bold uppercase text-gray-400">
+                <a href="#" class="hover:text-brand-green transition-colors hover-target">Instagram</a>
+                <a href="#" class="hover:text-brand-green transition-colors hover-target">LinkedIn</a>
+                <a href="#" class="hover:text-brand-green transition-colors hover-target">Twitter</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- PRELOADER ANIMATION ---
+        const preloaderTl = gsap.timeline();
+
+        // 1. Reveal Text
+        preloaderTl.to(".preloader-text", {
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power4.out",
+            delay: 0.2
+        })
+        // 2. Pause briefly
+        .to(".preloader-text", {
+            y: -150,
+            duration: 0.6,
+            ease: "power4.in",
+            delay: 0.8
+        })
+        // 3. Slide Up Curtain
+        .to("#preloader", {
+            yPercent: -100,
+            duration: 0.8,
+            ease: "power4.inOut"
+        }, "-=0.2")
+        // 4. Start Hero Animations
+        .from(".hero-reveal", {
+            y: 120,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.1,
+            ease: "power4.out"
+        }, "-=0.4");
+
+
+        // --- MARQUEE ANIMATION (Scroll aware) ---
+        gsap.to(".marquee-track", {
+            xPercent: -50,
+            repeat: -1,
+            duration: 15,
+            ease: "linear"
+        }).timeScale(1);
+
+        // Accelerate marquee on scroll
+        let marqueeTween = gsap.getTweensOf(".marquee-track")[0];
+        ScrollTrigger.create({
+            trigger: "body",
+            start: "top top",
+            end: "bottom bottom",
+            onUpdate: (self) => {
+                let speed = 1 + Math.abs(self.getVelocity() / 3000);
+                gsap.to(marqueeTween, {timeScale: speed, duration: 0.2, overwrite: true});
+                gsap.to(marqueeTween, {timeScale: 1, duration: 1, delay: 0.2}); // Return to normal
+            }
+        });
+
+
+        // --- SERVICE ITEMS HOVER & REVEAL ---
+        const services = document.querySelectorAll('.service-item');
+        services.forEach(service => {
+            gsap.from(service, {
+                scrollTrigger: {
+                    trigger: service,
+                    start: "top 90%",
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+        });
+
+
+        // --- PROCESS CARDS STAGGER ---
+        gsap.from(".process-card", {
+            scrollTrigger: {
+                trigger: "#proceso",
+                start: "top 70%",
+            },
+            y: 100,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: "power3.out"
+        });
+
+
+        // --- CURSOR LOGIC (INSTANT FOLLOW) ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        
+        // El cursor sigue la posición del ratón de forma instantánea.
+        window.addEventListener('mousemove', (e) => {
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+            
+            // Tanto el punto como el contorno siguen al ratón inmediatamente.
+            cursorDot.style.left = clientX + 'px';
+            cursorDot.style.top = clientY + 'px';
+            cursorOutline.style.left = clientX + 'px';
+            cursorOutline.style.top = clientY + 'px';
+        });
+
+        // Hover states: controlan el cambio de tamaño/color al pasar sobre elementos interactivos.
+        document.querySelectorAll('.hover-target').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorOutline.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hovered'));
+        });
+
+
+        // --- MOBILE MENU ---
+        let isMenuOpen = false;
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        window.toggleMenu = function() {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                mobileMenu.classList.add('open');
+                menuBtn.classList.add('text-white'); // Ensure button is visible on black
+                document.body.style.overflow = 'hidden';
+                
+                // Animate links in
+                gsap.fromTo(".menu-link", 
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, delay: 0.3 }
+                );
+            } else {
+                mobileMenu.classList.remove('open');
+                menuBtn.classList.remove('text-white');
+                document.body.style.overflow = '';
+            }
+        };
+
+        // --- BACKGROUND PARALLAX TEXT ---
+        gsap.to("#bg-text", {
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1
+            },
+            rotate: 180,
+            y: 200
+        });
+
+    </script>
+</body>
+</html> 
